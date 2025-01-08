@@ -1,0 +1,355 @@
+Resources:
+  MyFunctionServiceRole3C357FF2:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: SampleStack/MyFunction/ServiceRole/Resource
+  MyFunction3BAA72D1:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+        S3Key: ca04b74dfa7053b729ab2f29e0645c6f4e0a687a9899e0024617b82c44a1333e.zip
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - MyFunctionServiceRole3C357FF2
+          - Arn
+      Runtime: nodejs18.x
+    DependsOn:
+      - MyFunctionServiceRole3C357FF2
+    Metadata:
+      aws:cdk:path: SampleStack/MyFunction/Resource
+      aws:asset:path: /Users/user/Desktop/sample/cdk.out/asset.ca04b74dfa7053b729ab2f29e0645c6f4e0a687a9899e0024617b82c44a1333e
+      aws:asset:is-bundled: true
+      aws:asset:property: Code
+  myApi10332170:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: myApi
+    Metadata:
+      aws:cdk:path: SampleStack/myApi/Resource
+  myApiDeployment12138A1E80d50b13fda0df64e754621fd9b0bb97:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      Description: Automatically created by the RestApi construct
+      RestApiId:
+        Ref: myApi10332170
+    DependsOn:
+      - myApiproxyANY5D46D965
+      - myApiproxyB1F7DCCD
+      - myApiANYF3D763C9
+    Metadata:
+      aws:cdk:path: SampleStack/myApi/Deployment/Resource
+  myApiDeploymentStageprodBF46AA96:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId:
+        Ref: myApiDeployment12138A1E80d50b13fda0df64e754621fd9b0bb97
+      RestApiId:
+        Ref: myApi10332170
+      StageName: prod
+    Metadata:
+      aws:cdk:path: SampleStack/myApi/DeploymentStage.prod/Resource
+  myApiproxyB1F7DCCD:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - myApi10332170
+          - RootResourceId
+      PathPart: "{proxy+}"
+      RestApiId:
+        Ref: myApi10332170
+    Metadata:
+      aws:cdk:path: SampleStack/myApi/Default/{proxy+}/Resource
+  myApiproxyANYApiPermissionSampleStackmyApi99C27F24ANYproxyCE7FF87F:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - MyFunction3BAA72D1
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myApi10332170
+            - /
+            - Ref: myApiDeploymentStageprodBF46AA96
+            - /*/*
+    Metadata:
+      aws:cdk:path: SampleStack/myApi/Default/{proxy+}/ANY/ApiPermission.SampleStackmyApi99C27F24.ANY..{proxy+}
+  myApiproxyANYApiPermissionTestSampleStackmyApi99C27F24ANYproxyA8407EF4:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - MyFunction3BAA72D1
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myApi10332170
+            - /test-invoke-stage/*/*
+    Metadata:
+      aws:cdk:path: SampleStack/myApi/Default/{proxy+}/ANY/ApiPermission.Test.SampleStackmyApi99C27F24.ANY..{proxy+}
+  myApiproxyANY5D46D965:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: ANY
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - MyFunction3BAA72D1
+                  - Arn
+              - /invocations
+      ResourceId:
+        Ref: myApiproxyB1F7DCCD
+      RestApiId:
+        Ref: myApi10332170
+    Metadata:
+      aws:cdk:path: SampleStack/myApi/Default/{proxy+}/ANY/Resource
+  myApiANYApiPermissionSampleStackmyApi99C27F24ANY245B2EA4:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - MyFunction3BAA72D1
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myApi10332170
+            - /
+            - Ref: myApiDeploymentStageprodBF46AA96
+            - /*/
+    Metadata:
+      aws:cdk:path: SampleStack/myApi/Default/ANY/ApiPermission.SampleStackmyApi99C27F24.ANY..
+  myApiANYApiPermissionTestSampleStackmyApi99C27F24ANYD86C28BF:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - MyFunction3BAA72D1
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: myApi10332170
+            - /test-invoke-stage/*/
+    Metadata:
+      aws:cdk:path: SampleStack/myApi/Default/ANY/ApiPermission.Test.SampleStackmyApi99C27F24.ANY..
+  myApiANYF3D763C9:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: ANY
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - MyFunction3BAA72D1
+                  - Arn
+              - /invocations
+      ResourceId:
+        Fn::GetAtt:
+          - myApi10332170
+          - RootResourceId
+      RestApiId:
+        Ref: myApi10332170
+    Metadata:
+      aws:cdk:path: SampleStack/myApi/Default/ANY/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/1VQy26DQAz8ltwXt5BKPSdUPfURkQ9AGzBkeXgR9pYixL9Xu6RRe5rxyJ6xnUD8/ATxTk8cFWUbdeYCy1l00So9cb50ur+UOidbYsPwEeDVUSHGkjK6hyWzHaq0Io+r4n2umVEYDh4U7+HoihblqBnV5gZLWtHdJK3ohGNvmI2lVenB1Fpw0jMsb6E9Q5bDYELGjb7g0Nm5RxKv/qnOouuwzUYyZOvGAkP4abTf869yc9v4O8rVll7a2LreJ1U4w7sZqn3Hp5PByb/xtKLUUmkkHOBfBQ0/fCUJxAk87ho2JhodiekRsg1/AIsJJ3p3AQAA
+    Metadata:
+      aws:cdk:path: SampleStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Outputs:
+  myApiEndpointF2DFDFB1:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: myApi10332170
+          - .execute-api.
+          - Ref: AWS::Region
+          - "."
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: myApiDeploymentStageprodBF46AA96
+          - /
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-3
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-4
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - il-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+      - Fn::Equals:
+          - Ref: AWS::Region
+          - us-west-2
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+
