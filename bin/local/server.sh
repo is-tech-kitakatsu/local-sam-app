@@ -4,6 +4,7 @@ echo "Start local server"
 
 echo "Clean up local directory"
 sh bin/local/clean.sh
+sh bin/local/clean-cdk-out.sh
 
 # CloudFormationのテンプレートを生成
 echo "Start build to template.yaml"
