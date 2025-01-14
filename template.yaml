@@ -22,9 +22,10 @@ Resources:
     Properties:
       Code:
         S3Bucket:
-          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
-        S3Key: ca04b74dfa7053b729ab2f29e0645c6f4e0a687a9899e0024617b82c44a1333e.zip
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1
+        S3Key: 2fc41b98bd3cb35bc4dc4cc8b4609fd38aca639e4e60bdb1812b3bb61e22a594.zip
       Handler: index.handler
+      MemorySize: 512
       Role:
         Fn::GetAtt:
           - MyFunctionServiceRole3C357FF2
@@ -34,7 +35,7 @@ Resources:
       - MyFunctionServiceRole3C357FF2
     Metadata:
       aws:cdk:path: SampleStack/MyFunction/Resource
-      aws:asset:path: /Users/user/Desktop/sample/cdk.out/asset.ca04b74dfa7053b729ab2f29e0645c6f4e0a687a9899e0024617b82c44a1333e
+      aws:asset:path: asset.2fc41b98bd3cb35bc4dc4cc8b4609fd38aca639e4e60bdb1812b3bb61e22a594
       aws:asset:is-bundled: true
       aws:asset:property: Code
   myApi10332170:
@@ -43,7 +44,7 @@ Resources:
       Name: myApi
     Metadata:
       aws:cdk:path: SampleStack/myApi/Resource
-  myApiDeployment12138A1E80d50b13fda0df64e754621fd9b0bb97:
+  myApiDeployment12138A1E22722400ea3a4d53f521371a1797f000:
     Type: AWS::ApiGateway::Deployment
     Properties:
       Description: Automatically created by the RestApi construct
@@ -59,7 +60,7 @@ Resources:
     Type: AWS::ApiGateway::Stage
     Properties:
       DeploymentId:
-        Ref: myApiDeployment12138A1E80d50b13fda0df64e754621fd9b0bb97
+        Ref: myApiDeployment12138A1E22722400ea3a4d53f521371a1797f000
       RestApiId:
         Ref: myApi10332170
       StageName: prod
@@ -89,11 +90,7 @@ Resources:
       SourceArn:
         Fn::Join:
           - ""
-          - - "arn:"
-            - Ref: AWS::Partition
-            - ":execute-api:"
-            - Ref: AWS::Region
-            - ":"
+          - - "arn:aws:execute-api:ap-northeast-1:"
             - Ref: AWS::AccountId
             - ":"
             - Ref: myApi10332170
@@ -114,11 +111,7 @@ Resources:
       SourceArn:
         Fn::Join:
           - ""
-          - - "arn:"
-            - Ref: AWS::Partition
-            - ":execute-api:"
-            - Ref: AWS::Region
-            - ":"
+          - - "arn:aws:execute-api:ap-northeast-1:"
             - Ref: AWS::AccountId
             - ":"
             - Ref: myApi10332170
@@ -136,11 +129,7 @@ Resources:
         Uri:
           Fn::Join:
             - ""
-            - - "arn:"
-              - Ref: AWS::Partition
-              - ":apigateway:"
-              - Ref: AWS::Region
-              - :lambda:path/2015-03-31/functions/
+            - - arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/
               - Fn::GetAtt:
                   - MyFunction3BAA72D1
                   - Arn
@@ -163,11 +152,7 @@ Resources:
       SourceArn:
         Fn::Join:
           - ""
-          - - "arn:"
-            - Ref: AWS::Partition
-            - ":execute-api:"
-            - Ref: AWS::Region
-            - ":"
+          - - "arn:aws:execute-api:ap-northeast-1:"
             - Ref: AWS::AccountId
             - ":"
             - Ref: myApi10332170
@@ -188,11 +173,7 @@ Resources:
       SourceArn:
         Fn::Join:
           - ""
-          - - "arn:"
-            - Ref: AWS::Partition
-            - ":execute-api:"
-            - Ref: AWS::Region
-            - ":"
+          - - "arn:aws:execute-api:ap-northeast-1:"
             - Ref: AWS::AccountId
             - ":"
             - Ref: myApi10332170
@@ -210,11 +191,7 @@ Resources:
         Uri:
           Fn::Join:
             - ""
-            - - "arn:"
-              - Ref: AWS::Partition
-              - ":apigateway:"
-              - Ref: AWS::Region
-              - :lambda:path/2015-03-31/functions/
+            - - arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/
               - Fn::GetAtt:
                   - MyFunction3BAA72D1
                   - Arn
@@ -230,10 +207,9 @@ Resources:
   CDKMetadata:
     Type: AWS::CDK::Metadata
     Properties:
-      Analytics: v2:deflate64:H4sIAAAAAAAA/1VQy26DQAz8ltwXt5BKPSdUPfURkQ9AGzBkeXgR9pYixL9Xu6RRe5rxyJ6xnUD8/ATxTk8cFWUbdeYCy1l00So9cb50ur+UOidbYsPwEeDVUSHGkjK6hyWzHaq0Io+r4n2umVEYDh4U7+HoihblqBnV5gZLWtHdJK3ohGNvmI2lVenB1Fpw0jMsb6E9Q5bDYELGjb7g0Nm5RxKv/qnOouuwzUYyZOvGAkP4abTf869yc9v4O8rVll7a2LreJ1U4w7sZqn3Hp5PByb/xtKLUUmkkHOBfBQ0/fCUJxAk87ho2JhodiekRsg1/AIsJJ3p3AQAA
+      Analytics: v2:deflate64:H4sIAAAAAAAA/01Qy26DQAz8ltwXt5BKPSdUPfURkQ9ADhiyPHYR9pYixL9Xu6RRTjMe2TO2E4hfXyDe4cRRUbZRpy+wnAWLVuHE+dJhfykxN7akhuErwLszhWhrlMYelsx2pNLKeFwV73NkJmE4eFC8h6MrWpIjMqnNDZa0MneTtDInGnvNrK1ZFQ66RqEJZ1g+QntGLIdBh4wbfaOhs3NPRrz6UJ0F67DNRjJi68aCQvhptL/zv3Jz2/gnydWWXtrYut4nVTjDu2lT+45vJ4OTx/FV+e9Aw08/SQJxAs+7hrWORmdE9wTZhn8DSrh3agEAAA==
     Metadata:
       aws:cdk:path: SampleStack/CDKMetadata/Default
-    Condition: CDKMetadataAvailable
 Outputs:
   myApiEndpointF2DFDFB1:
     Value:
@@ -241,112 +217,11 @@ Outputs:
         - ""
         - - https://
           - Ref: myApi10332170
-          - .execute-api.
-          - Ref: AWS::Region
-          - "."
+          - .execute-api.ap-northeast-1.
           - Ref: AWS::URLSuffix
           - /
           - Ref: myApiDeploymentStageprodBF46AA96
           - /
-Conditions:
-  CDKMetadataAvailable:
-    Fn::Or:
-      - Fn::Or:
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - af-south-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ap-east-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ap-northeast-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ap-northeast-2
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ap-northeast-3
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ap-south-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ap-south-2
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ap-southeast-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ap-southeast-2
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ap-southeast-3
-      - Fn::Or:
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ap-southeast-4
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ca-central-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - ca-west-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - cn-north-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - cn-northwest-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - eu-central-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - eu-central-2
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - eu-north-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - eu-south-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - eu-south-2
-      - Fn::Or:
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - eu-west-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - eu-west-2
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - eu-west-3
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - il-central-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - me-central-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - me-south-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - sa-east-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - us-east-1
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - us-east-2
-          - Fn::Equals:
-              - Ref: AWS::Region
-              - us-west-1
-      - Fn::Equals:
-          - Ref: AWS::Region
-          - us-west-2
 Parameters:
   BootstrapVersion:
     Type: AWS::SSM::Parameter::Value<String>
