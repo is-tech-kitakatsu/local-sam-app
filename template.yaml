@@ -1,4 +1,19 @@
 Resources:
+  ExampleTable114D508F:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      TableName: ExampleTable
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: SampleStack/ExampleTable/Resource
   MyFunctionServiceRole3C357FF2:
     Type: AWS::IAM::Role
     Properties:
@@ -17,13 +32,48 @@ Resources:
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
     Metadata:
       aws:cdk:path: SampleStack/MyFunction/ServiceRole/Resource
+  MyFunctionServiceRoleDefaultPolicyB705ABD4:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - dynamodb:BatchGetItem
+              - dynamodb:BatchWriteItem
+              - dynamodb:ConditionCheckItem
+              - dynamodb:DeleteItem
+              - dynamodb:DescribeTable
+              - dynamodb:GetItem
+              - dynamodb:GetRecords
+              - dynamodb:GetShardIterator
+              - dynamodb:PutItem
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:UpdateItem
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - ExampleTable114D508F
+                  - Arn
+              - Ref: AWS::NoValue
+        Version: "2012-10-17"
+      PolicyName: MyFunctionServiceRoleDefaultPolicyB705ABD4
+      Roles:
+        - Ref: MyFunctionServiceRole3C357FF2
+    Metadata:
+      aws:cdk:path: SampleStack/MyFunction/ServiceRole/DefaultPolicy/Resource
   MyFunction3BAA72D1:
     Type: AWS::Lambda::Function
     Properties:
       Code:
         S3Bucket:
           Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1
-        S3Key: 2fc41b98bd3cb35bc4dc4cc8b4609fd38aca639e4e60bdb1812b3bb61e22a594.zip
+        S3Key: ca8b18a9e1ee716488dfbfa9427015bd9d76047b91af6f8e408b6d0511257b11.zip
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: ExampleTable114D508F
+          DYNAMODB_ENDPOINT: http://host.docker.internal:8000
       Handler: index.handler
       MemorySize: 512
       Role:
@@ -31,11 +81,13 @@ Resources:
           - MyFunctionServiceRole3C357FF2
           - Arn
       Runtime: nodejs18.x
+      Timeout: 30
     DependsOn:
+      - MyFunctionServiceRoleDefaultPolicyB705ABD4
       - MyFunctionServiceRole3C357FF2
     Metadata:
       aws:cdk:path: SampleStack/MyFunction/Resource
-      aws:asset:path: asset.2fc41b98bd3cb35bc4dc4cc8b4609fd38aca639e4e60bdb1812b3bb61e22a594
+      aws:asset:path: asset.ca8b18a9e1ee716488dfbfa9427015bd9d76047b91af6f8e408b6d0511257b11
       aws:asset:is-bundled: true
       aws:asset:property: Code
   myApi10332170:
@@ -207,7 +259,7 @@ Resources:
   CDKMetadata:
     Type: AWS::CDK::Metadata
     Properties:
-      Analytics: v2:deflate64:H4sIAAAAAAAA/01Qy26DQAz8ltwXt5BKPSdUPfURkQ9ADhiyPHYR9pYixL9Xu6RRTjMe2TO2E4hfXyDe4cRRUbZRpy+wnAWLVuHE+dJhfykxN7akhuErwLszhWhrlMYelsx2pNLKeFwV73NkJmE4eFC8h6MrWpIjMqnNDZa0MneTtDInGnvNrK1ZFQ66RqEJZ1g+QntGLIdBh4wbfaOhs3NPRrz6UJ0F67DNRjJi68aCQvhptL/zv3Jz2/gnydWWXtrYut4nVTjDu2lT+45vJ4OTx/FV+e9Aw08/SQJxAs+7hrWORmdE9wTZhn8DSrh3agEAAA==
+      Analytics: v2:deflate64:H4sIAAAAAAAA/02QT2+DMAzFP0vvwRt00s5tp532p6K7IwMuC5AE4WQMIb77lIRVPb2fLb9nJxmkz0+Q7nDipKq7pJclLBeLVSdw4mKpZ43K1CUsX1j2JE5XHWAVPaqyxkKbmlqGjyCvTldWGi0kKlhyEw1Bz6aX1ezLSKvgfYHMZBkOXgTv4eiqjuwRmbZ4WE5XfUv1ZhqVZJZGrwIH2aClCWdY3sJ4TmwPgwxLN3yhoTezIm199666WGzCeRFyYuPGisLy82h+5//Olhb5ney3qX0r0rrenCI8w6dJ3fiJT2cHZ+/tq/DfBS0//GQZpBk87lqWMhmdtlIR5FH/AHxMEnSVAQAA
     Metadata:
       aws:cdk:path: SampleStack/CDKMetadata/Default
 Outputs:
