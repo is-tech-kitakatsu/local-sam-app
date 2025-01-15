@@ -3,7 +3,7 @@ import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda-nodejs";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
-import { tableDefinitions } from "../src/domain/dynamoDB/table";
+import { exampleTable, tableDefinitions } from "../src/domain/dynamoDB/table";
 
 export class SampleStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -17,28 +17,46 @@ export class SampleStack extends Stack {
     //   billingMode: dynamodb.BillingMode.PAY_PER_REQUEST, // オプション: 従量課金モード
     // });
 
-    tableDefinitions.forEach((tableDefinition) => {
-      new dynamodb.Table(this, tableDefinition.TableName, {
+    const tables = tableDefinitions.map((tableDefinition) => {
+      return new dynamodb.Table(this, tableDefinition.tableName as string, {
         partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
-        tableName: tableDefinition.TableName,
-        removalPolicy: RemovalPolicy.DESTROY,
-        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        tableName: tableDefinition.tableName,
+        removalPolicy: tableDefinition.removalPolicy,
+        billingMode: tableDefinition.billingMode,
       });
     });
+
+    const backendExecuteScript = new lambda.NodejsFunction(
+      this,
+      "ExecuteScript",
+      {
+        entry: "src/lambda/script/index.ts", // accepts .js, .jsx, .ts, .tsx and .mjs files
+        handler: "handler", // defaults to 'handler'
+        memorySize: 512, // メモリサイズを512MBに設定
+        environment: {
+          TABLE_NAME: exampleTable,
+          DYNAMODB_ENDPOINT: "http://host.docker.internal:8000", // ローカルのDynamoDB Local
+        },
+        timeout: Duration.seconds(30), // 30秒に設定
+      }
+    );
 
     const backend = new lambda.NodejsFunction(this, "MyFunction", {
       entry: "src/lambda/hello/index.ts", // accepts .js, .jsx, .ts, .tsx and .mjs files
       handler: "handler", // defaults to 'handler'
       memorySize: 512, // メモリサイズを512MBに設定
       environment: {
-        TABLE_NAME: table.tableName,
+        TABLE_NAME: exampleTable,
         DYNAMODB_ENDPOINT: "http://host.docker.internal:8000", // ローカルのDynamoDB Local
       },
       timeout: Duration.seconds(30), // 30秒に設定
     });
 
     // LambdaにDynamoDBアクセス権限を付与
-    table.grantReadWriteData(backend);
+    tables.forEach((table) => {
+      table.grantReadWriteData(backendExecuteScript);
+      table.grantReadWriteData(backend);
+    });
 
     // API Gatewayを追加
     new apigateway.LambdaRestApi(this, "myApi", {
