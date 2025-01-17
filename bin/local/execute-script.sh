@@ -1,6 +1,13 @@
 #!/bin/bash
 
+# 環境変数読み込み
+source bin/local/source.sh
+
+# ローカル環境のセットアップ
 sh bin/local/setup.sh
+
+# localstackを起動
+sh bin/local/localstack.sh
 
 script_name=$1
 

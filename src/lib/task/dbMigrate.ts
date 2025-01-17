@@ -1,15 +1,10 @@
 import {
   CreateTableCommand,
-  DynamoDBClient,
   KeySchemaElement,
   KeyType,
 } from "@aws-sdk/client-dynamodb";
 import { tableDefinitions } from "../../domain/dynamoDB/table";
-
-const client = new DynamoDBClient({
-  endpoint: "http://host.docker.internal:8000", // Dockerのローカルホストエンドポイント
-  region: "ap-northeast-1",
-});
+import { dynamoDBClient } from "../clients/dynamoDB";
 
 export const dbMigrate = async () => {
   for (const tableDefinition of tableDefinitions) {
@@ -43,7 +38,7 @@ export const dbMigrate = async () => {
     ];
 
     try {
-      const res = await client.send(
+      const res = await dynamoDBClient.send(
         new CreateTableCommand({
           TableName: tableDefinition.tableName,
           AttributeDefinitions: attributeDefinitions,
@@ -55,7 +50,9 @@ export const dbMigrate = async () => {
     } catch (error: any) {
       if (error.name === "ResourceInUseException") {
         console.log(`Table ${tableDefinition.tableName} already exists`);
+        return;
       }
+      throw error;
     }
   }
 };

@@ -5,11 +5,8 @@ export const handler = async (event: any) => {
   const scriptName = body.scriptName;
 
   try {
-    if (scriptName === "dbMigrate") {
-      await dbMigrate();
-    } else {
-      throw new Error("存在しないスクリプトです");
-    }
+    const selectedScript = getSelectedScript(scriptName);
+    await selectedScript();
 
     return {
       statusCode: 200,
@@ -26,3 +23,12 @@ export const handler = async (event: any) => {
     };
   }
 };
+
+function getSelectedScript(scriptName: string): () => Promise<void> {
+  switch (scriptName) {
+    case "dbMigrate":
+      return dbMigrate;
+    default:
+      throw new Error("存在しないスクリプトです");
+  }
+}

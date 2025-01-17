@@ -44,6 +44,16 @@ Resources:
     DeletionPolicy: Delete
     Metadata:
       aws:cdk:path: SampleStack/TestTable2/Resource
+  SqsMyQueueD0313F39:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 345600
+      QueueName: SqsMyQueue
+      VisibilityTimeout: 30
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: SampleStack/SqsMyQueue/Resource
   ExecuteScriptServiceRole53BA6A10:
     Type: AWS::IAM::Role
     Properties:
@@ -104,11 +114,11 @@ Resources:
       Code:
         S3Bucket:
           Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1
-        S3Key: 008c648ad61199f7ef65b42cc3b4cbe5e0dbdedc0ba4f237213c22aea5e4fd59.zip
+        S3Key: 4d92d52179a6d19e35cd6d6a98cdc2ca7558091708d3e9ec441c18491d0140b3.zip
       Environment:
         Variables:
-          TABLE_NAME: ExampleTable
-          DYNAMODB_ENDPOINT: http://host.docker.internal:8000
+          DYNAMODB_ENDPOINT: http://host.docker.internal:4566
+          SQS_ENDPOINT: http://localhost:4566
       Handler: index.handler
       MemorySize: 512
       Role:
@@ -122,7 +132,7 @@ Resources:
       - ExecuteScriptServiceRole53BA6A10
     Metadata:
       aws:cdk:path: SampleStack/ExecuteScript/Resource
-      aws:asset:path: asset.008c648ad61199f7ef65b42cc3b4cbe5e0dbdedc0ba4f237213c22aea5e4fd59
+      aws:asset:path: asset.4d92d52179a6d19e35cd6d6a98cdc2ca7558091708d3e9ec441c18491d0140b3
       aws:asset:is-bundled: true
       aws:asset:property: Code
   MyFunctionServiceRole3C357FF2:
@@ -185,11 +195,11 @@ Resources:
       Code:
         S3Bucket:
           Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1
-        S3Key: be5893ba9d271415e1b4fed06442d8deef964ca2a6c2c1723ec92caa65a663fa.zip
+        S3Key: 67fc2bc8c84bb801fafd31306642269de2ad5ce07415a3c1fab3734074a21a9f.zip
       Environment:
         Variables:
-          TABLE_NAME: ExampleTable
-          DYNAMODB_ENDPOINT: http://host.docker.internal:8000
+          DYNAMODB_ENDPOINT: http://host.docker.internal:4566
+          SQS_ENDPOINT: http://localhost:4566
       Handler: index.handler
       MemorySize: 512
       Role:
@@ -203,9 +213,88 @@ Resources:
       - MyFunctionServiceRole3C357FF2
     Metadata:
       aws:cdk:path: SampleStack/MyFunction/Resource
-      aws:asset:path: asset.be5893ba9d271415e1b4fed06442d8deef964ca2a6c2c1723ec92caa65a663fa
+      aws:asset:path: asset.67fc2bc8c84bb801fafd31306642269de2ad5ce07415a3c1fab3734074a21a9f
       aws:asset:is-bundled: true
       aws:asset:property: Code
+  SQSMyFunctionServiceRoleF1D5B74B:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: SampleStack/SQSMyFunction/ServiceRole/Resource
+  SQSMyFunctionServiceRoleDefaultPolicyFCEB1A0F:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:ReceiveMessage
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - SqsMyQueueD0313F39
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: SQSMyFunctionServiceRoleDefaultPolicyFCEB1A0F
+      Roles:
+        - Ref: SQSMyFunctionServiceRoleF1D5B74B
+    Metadata:
+      aws:cdk:path: SampleStack/SQSMyFunction/ServiceRole/DefaultPolicy/Resource
+  SQSMyFunction9A6CA5A0:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1
+        S3Key: eb623bca5af85acd11ff7576113f3ba7095adbdb0fdec8af7f56d3660890cbc7.zip
+      Environment:
+        Variables:
+          DYNAMODB_ENDPOINT: http://host.docker.internal:4566
+          SQS_ENDPOINT: http://localhost:4566
+      Handler: index.handler
+      MemorySize: 512
+      Role:
+        Fn::GetAtt:
+          - SQSMyFunctionServiceRoleF1D5B74B
+          - Arn
+      Runtime: nodejs20.x
+      Timeout: 30
+    DependsOn:
+      - SQSMyFunctionServiceRoleDefaultPolicyFCEB1A0F
+      - SQSMyFunctionServiceRoleF1D5B74B
+    Metadata:
+      aws:cdk:path: SampleStack/SQSMyFunction/Resource
+      aws:asset:path: asset.eb623bca5af85acd11ff7576113f3ba7095adbdb0fdec8af7f56d3660890cbc7
+      aws:asset:is-bundled: true
+      aws:asset:property: Code
+  SQSMyFunctionSqsEventSourceSampleStackSqsMyQueueA6964100F14ED9A2:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 5
+      EventSourceArn:
+        Fn::GetAtt:
+          - SqsMyQueueD0313F39
+          - Arn
+      FunctionName:
+        Ref: SQSMyFunction9A6CA5A0
+    Metadata:
+      aws:cdk:path: SampleStack/SQSMyFunction/SqsEventSource:SampleStackSqsMyQueueA6964100/Resource
   myApi10332170:
     Type: AWS::ApiGateway::RestApi
     Properties:
@@ -375,7 +464,7 @@ Resources:
   CDKMetadata:
     Type: AWS::CDK::Metadata
     Properties:
-      Analytics: v2:deflate64:H4sIAAAAAAAA/02QT2+DMAzFP0vvwRt00s5tp532p6K7IwMuC5AE4WQMIb77lIRVPb2fLb9nJxmkz0+Q7nDipKq7pJclLBeLVSdw4mKpZ43K1CUsX1j2JE5XHWAVPaqyxkKbmlqGjyCvTldWGi0kKlhyEw1Bz6aX1ezLSKvgfYHMZBkOXgTv4eiqjuwRmbZ4WE5XfUv1ZhqVZJZGrwIH2aClCWdY3sJ4TmwPgwxLN3yhoTezIm199666WGzCeRFyYuPGisLy82h+5//Olhb5ney3qX0r0rrenCI8w6dJ3fiJT2cHZ+/tq/DfBS0//GQZpBk87lqWMhmdtlIR5FH/AHxMEnSVAQAA
+      Analytics: v2:deflate64:H4sIAAAAAAAA/22QQVPCMBCFfwv3sEpxxjOgnkSxeGe27YKBNqndDdjJ5L87SSvDwdN7+2b2y9tkMHt8gNkELzwtq9O01gX4rWB5Unjhna96g42tCvCfWNSkVnuTTFD8zeA/HLkUJhNUjU1R4c7Yio4Mb0lenClFW6M0NuBzO1CSbmytyz6OgwuK5ztkJmFYRFE8h6UrTyRLZBrx4Fd7c6U+n8nI1rqupDW2rTaHyPs/3VDXaGZtTVDY6gMKXbAH/5q4ObEsWp3ajfaJ2tr2DRmJ6c20FTykOwaTE6e3UstNZ3/6v2SkDX5N8mWrGA0uhOumSvdG2tj13Unr5HY9qPivcOS7c5bBLIP7yZG1nnbOiG4I8kF/AVKjWT7TAQAA
     Metadata:
       aws:cdk:path: SampleStack/CDKMetadata/Default
 Outputs:

@@ -1,6 +1,7 @@
 #!/bin/bash
 
-echo "Start local server"
+# 環境変数読み込み
+source bin/local/source.sh
 
 echo "Clean up local directory"
 sh bin/local/clean.sh
@@ -21,22 +22,3 @@ for dir in cdk.out/*; do
     cp -r "$dir" .
   fi
 done
-
-# dynamoDB用のネットワークを作成
-echo "Create network for DynamoDB"
-docker network create link-for-dynamoDB
-
-# dynamoDB用のボリュームを作成
-echo "Create volume for DynamoDB"
-docker volume create dynamodb_data
-
-# dynamoDBのコンテナを起動
-echo "Start DynamoDB container"
-docker run -d -p 8000:8000 -v dynamodb_data:/home/dynamodblocal/data --network link-for-dynamoDB --name dynamodb-local amazon/dynamodb-local
-# もしコンテナの立ち上げに失敗したら、既存のコンテナを再起動する
-# 一度でも起動していたら次のようなエラーで失敗する
-# docker: Error response from daemon: Conflict. The container name "/dynamodb-local" is already in use by container....
-if [ $? -ne 0 ]; then
-  echo "Failed to start new DynamoDB Local container. Restarting existing container..."
-  docker start dynamodb-local
-fi

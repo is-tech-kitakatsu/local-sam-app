@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  localstack:
+    image: localstack/localstack
+    container_name: localstack_main
+    ports:
+      - "4566:4566" # LocalStack エンドポイント
+    environment:
+      - SERVICES=sqs,dynamodb
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - colima_network
+    restart: always
+
+networks:
+  colima_network:
+    driver: bridge

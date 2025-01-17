@@ -14,22 +14,16 @@ export const tableDefinitions: dynamodb.TableProps[] = [
   {
     tableName: exampleTable,
     partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
-    // AttributeDefinitions: [{ AttributeName: "id", AttributeType: "S" }],
-    // KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
     ...commonTableDefinition,
   },
   {
     tableName: testTable,
     partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
-    // AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
-    // KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
     ...commonTableDefinition,
   },
   {
     tableName: testTable2,
     partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
-    // AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
-    // KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
     ...commonTableDefinition,
   },
 ];

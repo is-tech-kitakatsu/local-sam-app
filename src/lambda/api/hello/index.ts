@@ -1,11 +1,9 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import {
-  DynamoDBClient,
   PutItemCommand,
   GetItemCommand,
   CreateTableCommand,
-  ListTablesCommand,
 } from "@aws-sdk/client-dynamodb";
 import middy from "@middy/core";
 import httpErrorHandler from "@middy/http-error-handler";
@@ -16,6 +14,7 @@ import validator from "@middy/validator";
 import { transpileSchema } from "@middy/validator/transpile";
 import errorLogger from "@middy/error-logger";
 import { Table } from "aws-cdk-lib/aws-dynamodb";
+import { dynamoDBClient } from "../../../lib/clients/dynamoDB";
 
 const logger = new Logger({
   logLevel: "INFO",
@@ -46,12 +45,7 @@ const responseSchema = transpileSchema({
 });
 
 const main = async function (_event: any, _context: any) {
-  const client = new DynamoDBClient({
-    endpoint: "http://host.docker.internal:8000", // Dockerのローカルホストエンドポイント
-    region: "ap-northeast-1",
-  });
-
-  await client.send(
+  await dynamoDBClient.send(
     new CreateTableCommand({
       TableName: "ExampleTable",
       AttributeDefinitions: [{ AttributeName: "Id", AttributeType: "S" }],
@@ -60,18 +54,15 @@ const main = async function (_event: any, _context: any) {
     })
   );
 
-  // const hoge = await client.send(new ListTablesCommand({}));
-  // console.log(hoge);
-
   // DynamoDBにデータを追加
-  // const putParams = {
-  //   TableName: "ExampleTable",
-  //   Item: {
-  //     Id: { S: "123" },
-  //     name: { S: "Test Item" },
-  //   },
-  // };
-  // await client.send(new PutItemCommand(putParams));
+  const putParams = {
+    TableName: "ExampleTable",
+    Item: {
+      Id: { S: "123" },
+      name: { S: "Test Item" },
+    },
+  };
+  await dynamoDBClient.send(new PutItemCommand(putParams));
 
   // DynamoDBからデータを取得
   const getParams = {
@@ -80,7 +71,7 @@ const main = async function (_event: any, _context: any) {
       Id: { S: "123" },
     },
   };
-  const result = await client.send(new GetItemCommand(getParams));
+  const result = await dynamoDBClient.send(new GetItemCommand(getParams));
 
   return {
     headers: {

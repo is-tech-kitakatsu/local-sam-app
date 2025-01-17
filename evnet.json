@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "1",
+      "receiptHandle": "SomeReceiptHandle",
+      "body": "{\"message\": \"Hello from SQS!\"}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1586821728095",
+        "SenderId": "123456789012",
+        "ApproximateFirstReceiveTimestamp": "1586821736095"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "checksum",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:us-east-1:123456789012:MyQueue",
+      "awsRegion": "us-east-1"
+    }
+  ]
+}
